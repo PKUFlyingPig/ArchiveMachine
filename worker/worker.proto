@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service Worker {
+    rpc CrawlUrl(Url) returns (stream Content){}
+}
+
+message Content {
+    bytes data = 1;
+}
+
+message Url {
+    string url = 1;
+}
