@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import worker_pb2 as worker__pb2
+from capsule import common_pb2 as capsule_dot_common__pb2
 
 
 class WorkerStub(object):
@@ -14,10 +14,10 @@ class WorkerStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.CrawlUrl = channel.unary_stream(
-                '/Worker/CrawlUrl',
-                request_serializer=worker__pb2.Url.SerializeToString,
-                response_deserializer=worker__pb2.Content.FromString,
+        self.CrawlUrl = channel.unary_unary(
+                '/capsule.Worker/CrawlUrl',
+                request_serializer=capsule_dot_common__pb2.Url.SerializeToString,
+                response_deserializer=capsule_dot_common__pb2.Content.FromString,
                 )
 
 
@@ -33,14 +33,14 @@ class WorkerServicer(object):
 
 def add_WorkerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'CrawlUrl': grpc.unary_stream_rpc_method_handler(
+            'CrawlUrl': grpc.unary_unary_rpc_method_handler(
                     servicer.CrawlUrl,
-                    request_deserializer=worker__pb2.Url.FromString,
-                    response_serializer=worker__pb2.Content.SerializeToString,
+                    request_deserializer=capsule_dot_common__pb2.Url.FromString,
+                    response_serializer=capsule_dot_common__pb2.Content.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'Worker', rpc_method_handlers)
+            'capsule.Worker', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -59,8 +59,8 @@ class Worker(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/Worker/CrawlUrl',
-            worker__pb2.Url.SerializeToString,
-            worker__pb2.Content.FromString,
+        return grpc.experimental.unary_unary(request, target, '/capsule.Worker/CrawlUrl',
+            capsule_dot_common__pb2.Url.SerializeToString,
+            capsule_dot_common__pb2.Content.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

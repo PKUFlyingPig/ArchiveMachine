@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package bdware.bdledger.api;
+
+option go_package = "bdware.org/bdledger/pkg/api/grpc/pb;apipb";
+option java_package = "org.bdware.bdledger.api.grpc.pb";
+option java_outer_classname = "CommonProto";
+
+/* 事务类型 */
+enum TransactionType {
+  RECORD = 0; // 通用数据记录
+  MESSAGE = 1; // 消息
+  CONTRACT_CREATION = 2; // 合约创建
+  CONTRACT_INVOCATION = 3; // 合约调用
+  CONTRACT_STATUS = 4; // 合约状态
+}
+
+message Transaction {
+  bytes block_hash = 1;      // 事务所在的区块的哈希，当事务处于待确认状态时为`null`
+  int64 block_timestamp = 2; // 事务所在的区块产生时的 UNIX 时间戳，单位为秒
+  uint32 index = 3;          // 事务在区块中的位置 index，当事务处于待确认状态时为`null`
+  bytes hash = 4;            // 事务的哈希
+  TransactionType type = 5;  // 事务类型
+  bytes from = 6;            // 发送账户地址
+  uint64 nonce = 7;          // 这条事务之前发送者所发送的事务数量
+  bytes to = 8;              // 接收账户地址，或者调用的合约地址，或者`null`如为合约创建
+  bytes data = 9;            // 数据或合约代码
+  bytes v = 10;              // ECDSA recovery id
+  bytes r = 11;              // ECDSA signature r
+  bytes s = 12;              // ECDSA signature s
+}
+
+message Block {
+  bytes hash = 1;                         // 区块的哈希，当区块处于待确认状态时为`null`
+  bytes creator = 2;                      // 产块者账户地址
+  uint64 nonce = 3;                       // 这个区块之前产块者产生的区块数量
+  repeated bytes parent_hashes = 4;       // 父区块的哈希
+  repeated bytes witnesses = 5;           // 见证者账户地址
+  int64 timestamp = 6;                    // 区块产生时的 UNIX 时间戳，单位为秒
+  uint64 size = 7;                        // 区块大小的字节数
+  uint32 transaction_count = 8;           // 区块包含的事务数量
+  bytes transactions_root = 9;            // 区块的事务默克尔树根
+  repeated Transaction transactions = 10; // 事务对象的数组，或为空
+  repeated bytes transaction_hashes = 11; // 20字节的交易哈希的数组，或为空
+}
+
+message Contract {
+  bytes contractName = 1; //合约名称
+  uint32 randomNum = 2;   //合约执行的节点数量
+  bytes operation = 3;    //合约方法
+  bytes arg = 4;          //合约方法参数
+  bytes path = 5;         //合约文件路径(合约在IDE工程的相对路径)
+  bytes content = 6;      //合约内容(可为合约文件相对路径/合约脚本)
+  bytes pubkey = 7;       //用户公钥
+
+  enum ContractUnitRequestType{
+    START = 0;
+    STOP = 1;
+    EXECUTE = 2;
+    REPLY = 3;
+    REQUEST = 4;
+    PREPREPARE = 5;
+    PREPARE = 6;
+    COMMIT = 7;
+    ADDPEER = 8;
+    DROPPEER = 9;
+    STATESYNC = 10;
+  }
+}

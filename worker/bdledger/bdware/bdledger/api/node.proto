@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package bdware.bdledger.api;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "bdware.org/bdledger/pkg/api/grpc/pb;apipb";
+option java_package = "org.bdware.bdledger.api.grpc.pb";
+option java_outer_classname = "NodeProto";
+
+service Node {
+  /**
+   * Get BDLedger node version
+   * 查询BDLedger节点版本
+   */
+  rpc ClientVersion (google.protobuf.Empty) returns (ClientVersionResponse);
+}
+
+message ClientVersionResponse {
+  string version = 1; // 节点客户端版本
+}

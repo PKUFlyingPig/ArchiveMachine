@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package bdware.bdledger.api;
+
+import "google/protobuf/empty.proto";
+import "bdware/bdledger/api/common.proto";
+
+option go_package = "bdware.org/bdledger/pkg/api/grpc/pb;apipb";
+option java_package = "org.bdware.bdledger.api.grpc.pb";
+option java_outer_classname = "LedgerProto";
+
+service Ledger {
+  /**
+   * Create a new ledger
+   * 创建一个新账本
+   */
+  rpc CreateLedger (CreateLedgerRequest) returns (CreateLedgerResponse);
+  /**
+   * Get all ledgers
+   * 查询所有帐本列表
+   */
+  rpc GetLedgers (google.protobuf.Empty) returns (GetLedgersResponse);
+  /**
+   * Send a new transaction
+   * 发送一个新事务
+   */
+  rpc SendTransaction (SendTransactionRequest) returns (SendTransactionResponse);
+}
+
+message CreateLedgerRequest {
+  string name = 1;
+}
+message CreateLedgerResponse {
+  bool ok = 1;
+}
+
+message GetLedgersResponse {
+  repeated string ledgers = 1;
+}
+
+message SendTransactionRequest {
+  string ledger = 1;
+  message Transaction {
+    TransactionType type = 1;
+    bytes from = 2;
+    uint64 nonce = 3;
+    bytes to = 4;
+    bytes data = 5;
+  }
+  Transaction transaction = 2;
+}
+message SendTransactionResponse {
+  bytes hash = 1;
+}

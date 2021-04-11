@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package bdware.bdledger.api;
+
+option go_package = "bdware.org/bdledger/pkg/api/grpc/pb;apipb";
+option java_package = "org.bdware.bdledger.api.grpc.pb";
+option java_outer_classname = "ErrorDetailsProto";
+
+// InvalidArgument indicates client specified an invalid argument.
+// Note that this differs from FailedPrecondition. It indicates arguments
+// that are problematic regardless of the state of the system
+// (e.g., a malformed file name).
+message InvalidArgument {
+  // A message type used to describe a single invalid field.
+  message FieldViolation {
+    // A path leading to a field in the request body. The value will be a
+    // sequence of dot-separated identifiers that identify a protocol buffer
+    // field. E.g., "field_violations.field" would identify this field.
+    string field = 1;
+
+    // A description of why the request element is bad.
+    string description = 2;
+  }
+
+  // Describes all violations in a client request.
+  repeated FieldViolation field_violations = 1;
+}

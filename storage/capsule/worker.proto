@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package capsule;
+
+import "capsule/common.proto";
+
+service Worker {
+    rpc CrawlUrl(Url) returns (Content);
+}

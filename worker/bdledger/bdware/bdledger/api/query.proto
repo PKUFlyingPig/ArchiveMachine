@@ -1,0 +1,140 @@
+syntax = "proto3";
+
+package bdware.bdledger.api;
+
+import "bdware/bdledger/api/common.proto";
+
+option go_package = "bdware.org/bdledger/pkg/api/grpc/pb;apipb";
+option java_package = "org.bdware.bdledger.api.grpc.pb";
+option java_outer_classname = "QueryProto";
+
+service Query {
+  /**
+   * Get a block identified by its hash
+   * 查询哈希所指定的区块
+   */
+  rpc GetBlockByHash (GetBlockByHashRequest) returns (GetBlockByHashResponse);
+  /**
+   * Get blocks in a timestamp range
+   * 查询时间范围内的区块
+   * start_timestamp is required
+   */
+  rpc GetBlocks (BlocksRequest) returns (GetBlocksResponse);
+  /**
+   * Count all blocks in a ledger, or blocks in a timestamp range
+   * 查询帐本中的所有区块数量，或时间范围内的区块数量
+   */
+  rpc CountBlocks (BlocksRequest) returns (CountBlocksResponse);
+  /**
+   * Get recent 'count' blocks (Only support IncludeTransactions=NONE for now)
+   * 查询最新的n个区块
+   */
+  rpc GetRecentBlocks (RecentBlocksRequest) returns (GetBlocksResponse);
+  /**
+   * Get a transaction identified by its hash
+   * 查询哈希所指定的事务
+   */
+  rpc GetTransactionByHash (GetTransactionByHashRequest) returns (GetTransactionByHashResponse);
+  /**
+   * Get a transaction identified by hash of the block it belongs to and its index inside the block
+   * 查询所在区块的哈希与其在区块中的index所指定的事务
+   */
+  rpc GetTransactionByBlockHashAndIndex (GetTransactionByBlockHashAndIndexRequest) returns (GetTransactionByBlockHashAndIndexResponse);
+  /**
+   * Get transactions in a timestamp range
+   * 查询时间范围内的事务
+   */
+  rpc GetTransactions (TransactionsRequest) returns (GetTransactionsResponse);
+  /**
+   * Count all transactions in a ledger, or transactions in a timestamp range
+   * 查询帐本中的所有事务数量，或时间范围内的事务数量
+   * start_timestamp is required
+   */
+  rpc CountTransactions (TransactionsRequest) returns (CountTransactionsResponse);
+}
+
+enum IncludeTransactions {
+  NONE = 0; // 不包含交易数据
+  HASH = 1; // 包含交易哈希列表
+  FULL = 2; // 包含完整交易列表
+}
+
+message BlockFilter {
+  bytes hash = 1;
+  int64 timestamp = 2;
+}
+
+// repeated Transaction/BlockFilters are combined by "&&"(and) operator;
+message TransactionFilter {
+  bytes hash = 1;
+  bytes from = 2;
+  bytes to = 3;
+  bytes timestamp = 4;
+}
+
+message GetBlockByHashRequest {
+  string ledger = 1;
+  bytes hash = 2;
+  bool full_transactions = 3;
+}
+message GetBlockByHashResponse {
+  Block block = 1;
+}
+
+message BlocksRequest {
+  string ledger = 1;
+  int64 start_timestamp = 2;
+  int64 end_timestamp = 3;
+  repeated BlockFilter filters = 4;
+  IncludeTransactions include_transactions = 5;
+}
+message GetBlocksResponse {
+  repeated Block blocks = 1;
+  int64 start_timestamp = 2;
+  int64 end_timestamp = 3;
+}
+message CountBlocksResponse {
+  uint64 count = 1;
+  int64 start_timestamp = 2;
+  int64 end_timestamp = 3;
+}
+
+message RecentBlocksRequest {
+  string ledger = 1;
+  int64 count = 2;
+  IncludeTransactions include_transactions = 3;
+}
+
+message GetTransactionByHashRequest {
+  string ledger = 1;
+  bytes hash = 2;
+}
+message GetTransactionByHashResponse {
+  Transaction transaction = 1;
+}
+
+message GetTransactionByBlockHashAndIndexRequest {
+  string ledger = 1;
+  bytes block_hash = 2;
+  uint32 index = 3;
+}
+message GetTransactionByBlockHashAndIndexResponse {
+  Transaction transaction = 1;
+}
+
+message TransactionsRequest {
+  string ledger = 1;
+  int64 start_timestamp = 2; // required
+  int64 end_timestamp = 3;
+  repeated TransactionFilter filters = 4;
+}
+message GetTransactionsResponse {
+  repeated Transaction transactions = 1;
+  int64 start_timestamp = 2;
+  int64 end_timestamp = 3;
+}
+message CountTransactionsResponse {
+  uint64 count = 1;
+  int64 start_timestamp = 2;
+  int64 end_timestamp = 3;
+}

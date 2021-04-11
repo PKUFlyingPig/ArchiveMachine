@@ -1,6 +1,21 @@
 import os
 import time
 import re
+from netifaces import interfaces, ifaddresses, AF_INET
+
+def ip4_addresses():
+    """
+    return host's ipv4 addresses
+    """
+    ip_list = []
+    for interface in interfaces():
+        if AF_INET in ifaddresses(interface):
+            for link in ifaddresses(interface)[AF_INET]:
+                if link['addr'] != "127.0.0.1":
+                    ip_list.append(link['addr'])
+    if len(ip_list) == 0:
+        return None
+    return ip_list[0]
 
 DATA_DIR = '/Users/apple/archivebox/data'
 os.chdir(DATA_DIR)
@@ -20,7 +35,7 @@ def add_url(url, log_file="/tmp/log.txt"):
     log_suffix = " > " + log_file
     try:
         os.system(add_cmd + unique_url + log_suffix)
-        print("adding " + url + "into archivebox successfully")
+        print("adding " + url + " into archivebox successfully")
         path = catch_data_path(log_file)
         print("the path to the saved html is " + path)
         return path

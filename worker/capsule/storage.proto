@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package capsule;
+
+import "capsule/common.proto";
+
+service Storage {
+    rpc StoreContent(Content) returns (Empty);
+    rpc GetContent(Snapshot) returns (Content);
+}

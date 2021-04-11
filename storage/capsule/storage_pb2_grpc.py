@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import storage_pb2 as storage__pb2
+from capsule import common_pb2 as capsule_dot_common__pb2
 
 
 class StorageStub(object):
@@ -15,14 +15,14 @@ class StorageStub(object):
             channel: A grpc.Channel.
         """
         self.StoreContent = channel.unary_unary(
-                '/Storage/StoreContent',
-                request_serializer=storage__pb2.Content.SerializeToString,
-                response_deserializer=storage__pb2.SnapshotID.FromString,
+                '/capsule.Storage/StoreContent',
+                request_serializer=capsule_dot_common__pb2.Content.SerializeToString,
+                response_deserializer=capsule_dot_common__pb2.Empty.FromString,
                 )
         self.GetContent = channel.unary_unary(
-                '/Storage/GetContent',
-                request_serializer=storage__pb2.SnapshotID.SerializeToString,
-                response_deserializer=storage__pb2.Content.FromString,
+                '/capsule.Storage/GetContent',
+                request_serializer=capsule_dot_common__pb2.Snapshot.SerializeToString,
+                response_deserializer=capsule_dot_common__pb2.Content.FromString,
                 )
 
 
@@ -46,17 +46,17 @@ def add_StorageServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'StoreContent': grpc.unary_unary_rpc_method_handler(
                     servicer.StoreContent,
-                    request_deserializer=storage__pb2.Content.FromString,
-                    response_serializer=storage__pb2.SnapshotID.SerializeToString,
+                    request_deserializer=capsule_dot_common__pb2.Content.FromString,
+                    response_serializer=capsule_dot_common__pb2.Empty.SerializeToString,
             ),
             'GetContent': grpc.unary_unary_rpc_method_handler(
                     servicer.GetContent,
-                    request_deserializer=storage__pb2.SnapshotID.FromString,
-                    response_serializer=storage__pb2.Content.SerializeToString,
+                    request_deserializer=capsule_dot_common__pb2.Snapshot.FromString,
+                    response_serializer=capsule_dot_common__pb2.Content.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'Storage', rpc_method_handlers)
+            'capsule.Storage', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -75,9 +75,9 @@ class Storage(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Storage/StoreContent',
-            storage__pb2.Content.SerializeToString,
-            storage__pb2.SnapshotID.FromString,
+        return grpc.experimental.unary_unary(request, target, '/capsule.Storage/StoreContent',
+            capsule_dot_common__pb2.Content.SerializeToString,
+            capsule_dot_common__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -92,8 +92,8 @@ class Storage(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Storage/GetContent',
-            storage__pb2.SnapshotID.SerializeToString,
-            storage__pb2.Content.FromString,
+        return grpc.experimental.unary_unary(request, target, '/capsule.Storage/GetContent',
+            capsule_dot_common__pb2.Snapshot.SerializeToString,
+            capsule_dot_common__pb2.Content.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
