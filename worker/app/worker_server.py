@@ -12,6 +12,7 @@ import capsule.scheduler_pb2_grpc as scheduler_pb2_grpc
 from utils import add_url
 import argparse
 import logging
+import time
 
 class WorkerServicer(worker_pb2_grpc.WorkerServicer):
     def CrawlUrl(self, crawl_request, context):
@@ -51,7 +52,11 @@ if __name__ == '__main__':
     WORKER_PORT = 50051
     SCHEDULER_HOSTNAME = "archive-scheduler"
     SCHEDULER_PORT = "8848"
-    
-    print("worker hostname :", WORKER_HOSTNAME)
-    register(SCHEDULER_HOSTNAME, SCHEDULER_PORT, WORKER_HOSTNAME, WORKER_PORT)
+    MAX_REGISTERS = 20 
+    for i in range(MAX_REGISTERS):
+        try:
+            register(SCHEDULER_HOSTNAME, SCHEDULER_PORT, WORKER_HOSTNAME, WORKER_PORT)
+            break
+        except:
+            time.sleep(1)
     serve()

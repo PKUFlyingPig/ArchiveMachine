@@ -13,6 +13,7 @@ from concurrent import futures
 import sqlite3
 import argparse
 import logging
+import time
 
 DATA_DIR = "./data"
 class StorageServicer(storage_pb2_grpc.StorageServicer):
@@ -69,7 +70,6 @@ def register(sched_addr, sched_port, addr, port):
     with grpc.insecure_channel(sched_addr + ':' + str(sched_port)) as channel:
         stub = scheduler_pb2_grpc.SchedulerStub(channel)
         stub.RegisterStorage(common_pb2.Endpoint(addr=addr, port=port))
-        logging.info("successfully registered at "+ sched_addr + ":" + str(sched_port))
 
 def serve(port="50050"):
     try:
@@ -93,5 +93,11 @@ if __name__ == '__main__':
     STORAGE_PORT = 50050
     SCHEDULER_HOSTNAME = "archive-scheduler"
     SCHEDULER_PORT = "8848"
-    register(SCHEDULER_HOSTNAME, SCHEDULER_PORT, STORAGE_HOSTNAME, STORAGE_PORT)
+    MAX_REGISTERS = 20
+    for i in range(MAX_REGISTERS):
+        try:
+            register(SCHEDULER_HOSTNAME, SCHEDULER_PORT, STORAGE_HOSTNAME, STORAGE_PORT)
+            break
+        except:
+            time.sleep(1)
     serve()
