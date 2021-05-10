@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package capsule;
+
+message Empty {}
+
+message LoginRequest {
+    string token = 1;
+}
+
+message LoginConfirmation {
+    string token = 1;
+    string openid = 2;
+    string name = 3;
+}
+
+message UserData {
+    string username = 1;
+    repeated Article articles = 2;
+    repeated Notification notifications = 3;
+}
+
+message Article {
+    bytes id = 1;
+    string title = 2;
+    uint64 created_at = 3;
+    uint64 snapshot_count = 4;
+}
+
+message Task {
+    enum Status {
+        waiting = 0;
+        working = 1;
+    }
+    bytes id = 1;
+    string url = 2;
+    Status status = 3;
+    bytes article_id = 4;
+}
+
+message Notification {
+    enum Type {
+        info = 0;
+        error = 1;
+    }
+
+    bytes id = 1;
+    uint64 created_at = 2;
+    bool has_read = 3;
+    string content = 4;
+    Type type = 5;
+}
+
+message Snapshot {
+    enum Status {
+        ok = 0;
+        dead = 1;
+    };
+
+    bytes id = 1;
+    bytes hash = 2;
+    string url = 3;
+    uint64 timestamp = 4;
+    Status status = 5;
+}
+
+message Content {
+    enum Type {
+        html = 0;
+        pdf = 1;
+        video = 2;
+    }
+
+    Type type = 1;
+    bytes data = 2;
+}
+
+message Endpoint {
+    string addr = 1;
+    uint32 port = 2;
+}
+

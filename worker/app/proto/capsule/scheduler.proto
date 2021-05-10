@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package capsule;
+
+import "capsule/common.proto";
+
+message ListSnapshotsRequest {
+    string url = 1;
+}
+
+message Snapshots {
+    repeated Snapshot snapshots = 1;
+}
+
+message CreateArticleRequest {
+    string title = 1;
+}
+
+message DeleteArticleRequest {
+    bytes article_id = 1;
+}
+
+message ChangeArticleTitleRequest {
+    bytes article_id = 1;
+    string title = 2;
+}
+
+message RemoveSnapshotFromArticleRequest {
+    bytes article_id = 1;
+    bytes snapshot_id = 2;
+}
+
+message GetArticleSnapshotsRequest {
+    bytes article_id = 1;
+}
+
+message GetArticleSnapshotsResponse {
+    repeated Snapshot snapshots = 1;
+}
+
+message CaptureRequest {
+    bytes article_id = 1;
+    repeated string urls = 2;
+}
+
+message CurrentTasks {
+    repeated Task tasks = 1;
+}
+
+service Scheduler {
+    // Wechat login
+    rpc TryLogin (LoginRequest) returns (Empty);
+    rpc ConfirmLogin (LoginConfirmation) returns (Empty);
+
+    // Public snapshots
+    rpc ListSnapshots (ListSnapshotsRequest) returns (Snapshots);
+    rpc GetSnapshot (Snapshot) returns (Content);
+
+    // User interface
+    rpc GetUserData (Empty) returns (UserData);
+
+    // Articles
+    rpc CreateArticle (CreateArticleRequest) returns (Article);
+    rpc DeleteArticle (DeleteArticleRequest) returns (Empty);
+    rpc ChangeArticleTitle (ChangeArticleTitleRequest) returns (Empty);
+    rpc RemoveSnapshotFromArticle (RemoveSnapshotFromArticleRequest) returns (Empty);
+    rpc GetArticleSnapshots (GetArticleSnapshotsRequest) returns (GetArticleSnapshotsResponse);
+
+    // Tasks
+    rpc Capture (CaptureRequest) returns (Empty);
+    rpc GetActiveTasks (Empty) returns (stream CurrentTasks);
+
+    // Notifications
+    rpc MarkAllAsRead (Empty) returns (Empty);
+
+    // Workers and Storage
+    rpc RegisterWorker (Endpoint) returns (Empty);
+    rpc RegisterStorage (Endpoint) returns (Empty);
+}
+

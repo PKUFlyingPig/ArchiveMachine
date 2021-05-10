@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package capsule;
+
+import "capsule/common.proto";
+
+message CrawlRequest {
+    repeated string urls = 1;
+}
+
+message CrawlResponse {
+    string url = 1;
+    Content content = 2;
+}
+
+service Worker {
+    rpc Crawl(CrawlRequest) returns (stream CrawlResponse);
+}

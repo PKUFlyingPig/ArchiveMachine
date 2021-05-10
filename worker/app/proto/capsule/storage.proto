@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package capsule;
+
+import "capsule/common.proto";
+
+message StoreRequest {
+    bytes key = 1;
+    bytes data = 2;
+}
+
+message StorageKey {
+    bytes key = 1;
+}
+
+message StoredData {
+    bytes data = 1;
+}
+
+service Storage {
+    rpc StoreContent(StoreRequest) returns (Empty);
+    rpc GetContent(StorageKey) returns (StoredData);
+}
