@@ -14,11 +14,14 @@ import argparse
 import logging
 
 class WorkerServicer(worker_pb2_grpc.WorkerServicer):
-    def CrawlUrl(self, Url, context):
-        saved_path = add_url(Url.url)
-        with open(os.path.join(saved_path,"singlefile.html"), 'rb') as content_file:
-            content = content_file.read()
-        return common_pb2.Content(data=content)
+    def CrawlUrl(self, crawl_request, context):
+        for url in crawl_request.urls:
+            saved_path = add_url(url)
+            with open(os.path.join(saved_path,"singlefile.html"), 'rb') as content_file:
+                data = content_file.read()
+            content = common_pb2.Content(type=common_pb2.Content.Type.html, data=data)
+            crawl_response = worker_pb2.CrawlResponse(url=url, content=content)
+            yield crawl_response
 
 def register(sched_addr, sched_port, addr, port):
     with grpc.insecure_channel(sched_addr + ':' + sched_port) as channel:

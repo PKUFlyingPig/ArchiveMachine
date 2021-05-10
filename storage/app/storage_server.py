@@ -22,46 +22,46 @@ class StorageServicer(storage_pb2_grpc.StorageServicer):
             cur = con.cursor()
             # Create table
             cur.execute('''CREATE TABLE ID2PATH
-                          (key blob, data blob)''')
+                          (key blob, filepath text)''')
             con.commit()
             con.close()
         logging.info("Storage Service is up, the metadata are stored in the index.db, and all the snapshots are stored in ./data folder")
 
-    def StoreContent(self, contents, context):
-        logging.info("StoreContent with uuid: ", contents.meta.uuid)
-        meta = contents.meta
-        data = contents.data
-        # the path structure : DATA_DIR/url#current Linux time#.html
-        filepath = os.path.join(DATA_DIR, meta.url.url.split("/")[-1]+"#"+str(meta.timestamp)+"#.html")
+    def StoreContent(self, store_request, context):
+        key = store_request.key
+        data = store_request.data
+        logging.info("StoreContent with key: ", store_request.key)
+        # the path structure : DATA_DIR/key
+        filepath = os.path.join(DATA_DIR, key)
         with open(filepath, "wb") as f:
             f.write(data)
         logging.info("storing content @ " + filepath)
-        self.sql_store(meta, filepath)
+        self.sql_store(key, filepath)
         return common_pb2.Empty()
 
-    def GetContent(self, snapshot, context):
-        logging.info("GetContent with uuid: ", snapshot.uuid)
+    def GetContent(self, store_key, context):
+        key = store_key.key
+        logging.info("GetContent with key: ", key)
         con = sqlite3.connect("index.db")
         cur = con.cursor()
         # Insert a row of data
-        cur.execute("SELECT * FROM ID2PATH WHERE uuid=?", (snapshot.uuid,))
+        cur.execute("SELECT * FROM ID2PATH WHERE key=?", (key,))
         content = cur.fetchone()
         if content is None:
             logging.info("getting no content")
-            context.abort(grpc.StatusCode.NOT_FOUND, "uuid not found")
-        uuid, digest, url, timestamp, path = content
+            context.abort(grpc.StatusCode.NOT_FOUND, "key not found")
+        _, path = content
         con.close()
         logging.info("getting content @ " + path)
         with open(path, "rb") as f:
             data = f.read()
-        meta = common_pb2.Snapshot(uuid=uuid, hash=digest, url=common_pb2.Url(url=url),timestamp=timestamp)
-        return common_pb2.Content(meta=meta, data=data)
+        return storage_pb2.StoredData(data=data)
     
-    def sql_store(self, meta, filepath):
+    def sql_store(self, key, filepath):
         con = sqlite3.connect("index.db")
         cur = con.cursor()
         # Insert a row of data
-        cur.execute("INSERT INTO ID2PATH VALUES (?,?,?,?,?)", [meta.uuid, meta.hash, meta.url.url, meta.timestamp, filepath])
+        cur.execute("INSERT INTO ID2PATH VALUES (?,?)", [key, filepath])
         con.commit()
         con.close()
 
