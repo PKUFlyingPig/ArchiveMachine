@@ -15,7 +15,7 @@ import logging
 import time
 
 class WorkerServicer(worker_pb2_grpc.WorkerServicer):
-    def CrawlUrl(self, crawl_request, context):
+    def Crawl(self, crawl_request, context):
         for url in crawl_request.urls:
             saved_path = add_url(url)
             with open(os.path.join(saved_path,"singlefile.html"), 'rb') as content_file:
@@ -56,6 +56,7 @@ if __name__ == '__main__':
     for i in range(MAX_REGISTERS):
         try:
             register(SCHEDULER_HOSTNAME, SCHEDULER_PORT, WORKER_HOSTNAME, WORKER_PORT)
+            time.sleep(1)
             break
         except:
             time.sleep(1)
