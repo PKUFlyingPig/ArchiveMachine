@@ -97,6 +97,7 @@ if __name__ == '__main__':
     for i in range(MAX_REGISTERS):
         try:
             register(SCHEDULER_HOSTNAME, SCHEDULER_PORT, STORAGE_HOSTNAME, STORAGE_PORT)
+            time.sleep(1)
             break
         except:
             time.sleep(1)

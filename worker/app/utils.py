@@ -2,7 +2,7 @@ import os
 import time
 import re
 
-DATA_DIR = '/etc/data'
+DATA_DIR = '/usr/src/app/data'
 os.chdir(DATA_DIR)
 
 def add_url(url, log_file="/tmp/log.txt"):
@@ -15,7 +15,7 @@ def add_url(url, log_file="/tmp/log.txt"):
 
     # dangerous method
     print("adding " + url + " into archivebox ...")
-    add_cmd = "sudo `which docker-compose` run archivebox add "
+    add_cmd = "sudo -u archivebox archivebox add "
     unique_url = url + "#" + str(time.time())
     log_suffix = " > " + log_file
     try:
