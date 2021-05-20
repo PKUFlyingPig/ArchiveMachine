@@ -1,6 +1,7 @@
 import os
 import time
 import re
+import logging
 
 DATA_DIR = '/usr/src/app/data'
 os.chdir(DATA_DIR)
@@ -14,20 +15,32 @@ def add_url(url, log_file="/tmp/log.txt"):
     """
 
     # dangerous method
-    print("adding " + url + " into archivebox ...")
-    add_cmd = "sudo -u archivebox archivebox add "
-    unique_url = url + "#" + str(time.time())
-    log_suffix = " > " + log_file
-    try:
-        os.system(add_cmd + unique_url + log_suffix)
-        print("adding " + url + " into archivebox successfully")
-        path = catch_data_path(log_file)
-        print("the path to the saved html is " + path)
-        return path
+    logging.info("adding " + url + " into archivebox ...")
+    # add_cmd = "sudo -u archivebox archivebox add "
+    # unique_url = url + "#" + str(time.time())
+    # log_suffix = " > " + log_file
+    # try:
+    #     os.system(add_cmd + unique_url + log_suffix)
+    #     print("adding " + url + " into archivebox successfully")
+    #     path = catch_data_path(log_file)
+    #     print("the path to the saved html is " + path)
+    #     return path
 
+    # except:
+    #     print("!! Failed to run 'archive add' command !!")
+    #     return None
+
+    filename = "#" + str(time.time())
+    try:
+        cmd = f"wget --output-document '{filename}' '{url}'"
+        logging.info(cmd)
+        os.system(cmd)
     except:
-        print("!! Failed to run 'archive add' command !!")
+        logging.info("!! Failed to run wget command !!")
         return None
+    return os.path.join(DATA_DIR, filename)
+
+
 
 def catch_data_path(log_file):
     """use re to find the saved file path in the log output

@@ -18,7 +18,10 @@ class WorkerServicer(worker_pb2_grpc.WorkerServicer):
     def Crawl(self, crawl_request, context):
         for url in crawl_request.urls:
             saved_path = add_url(url)
-            with open(os.path.join(saved_path,"singlefile.html"), 'rb') as content_file:
+            #with open(os.path.join(saved_path,"singlefile.html"), 'rb') as content_file:
+            if saved_path is None:
+                continue
+            with open(saved_path, 'rb') as content_file:
                 data = content_file.read()
             content = common_pb2.Content(type=common_pb2.Content.Type.html, data=data)
             crawl_response = worker_pb2.CrawlResponse(url=url, content=content)
@@ -48,6 +51,7 @@ def serve(port="50051"):
     server.wait_for_termination()
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     WORKER_HOSTNAME = "archive-worker"
     WORKER_PORT = 50051
     SCHEDULER_HOSTNAME = "archive-scheduler"

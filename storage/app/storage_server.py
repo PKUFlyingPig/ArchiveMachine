@@ -31,18 +31,19 @@ class StorageServicer(storage_pb2_grpc.StorageServicer):
     def StoreContent(self, store_request, context):
         key = store_request.key
         data = store_request.data
-        logging.info("StoreContent with key: ", store_request.key)
+        logging.info(f"StoreContent with key: {key.hex()}")
         # the path structure : DATA_DIR/key
-        filepath = os.path.join(DATA_DIR, key)
+        filepath = os.path.join(DATA_DIR, key.hex())
         with open(filepath, "wb") as f:
             f.write(data)
         logging.info("storing content @ " + filepath)
         self.sql_store(key, filepath)
+        logging.info("return empty to scheduler")
         return common_pb2.Empty()
 
     def GetContent(self, store_key, context):
         key = store_key.key
-        logging.info("GetContent with key: ", key)
+        logging.info(f"GetContent with key: {key.hex()}")
         con = sqlite3.connect("index.db")
         cur = con.cursor()
         # Insert a row of data
@@ -89,6 +90,7 @@ def serve(port="50050"):
     server.wait_for_termination()
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     STORAGE_HOSTNAME = "archive-storage"
     STORAGE_PORT = 50050
     SCHEDULER_HOSTNAME = "archive-scheduler"
