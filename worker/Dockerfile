@@ -3,13 +3,15 @@ WORKDIR /usr/src/app
 EXPOSE 50051
 
 RUN pip install --no-cache-dir grpcio-tools grpcio
-RUN pip3 install archivebox
+# RUN pip3 install archivebox
 RUN apt-get update
-RUN apt-get install sudo -y
-####
-RUN apt-get install wget -y
-RUN mkdir data
-#### 
+RUN apt install curl -y
+# RUN apt-get install sudo -y
+# ####
+# RUN apt-get install wget -y
+# RUN mkdir data
+# RUN /usr/bin/docker -h
+# #### 
 
 # RUN groupadd archivebox
 # RUN useradd -r -g archivebox -G audio,video archivebox
@@ -26,6 +28,7 @@ RUN mkdir data
 # # RUN curl google.com
 # RUN echo 'haha'
 # RUN sudo -u archivebox archivebox init --setup
+# RUN archivebox add www.baidu.com
 # RUN sudo -u archivebox archivebox setup
 # RUN ls /etc/sudoers.d
 # RUN sudo echo "archivebox  ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/archivebox

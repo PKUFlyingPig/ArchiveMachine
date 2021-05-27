@@ -31,14 +31,25 @@ def add_url(url, log_file="/tmp/log.txt"):
     #     return None
 
     filename = "#" + str(time.time())
+    # try:
+    #     cmd = f"wget --output-document '{filename}' '{url}'"
+    #     logging.info(cmd)
+    #     os.system(cmd)
+    # except:
+    #     logging.info("!! Failed to run wget command !!")
+    #     return None
+    # return os.path.join(DATA_DIR, filename)
+
     try:
-        cmd = f"wget --output-document '{filename}' '{url}'"
+        cmd = f"curl -d 'url={url}' singlefile:80 > '{filename}'"
         logging.info(cmd)
         os.system(cmd)
     except:
         logging.info("!! Failed to run wget command !!")
         return None
     return os.path.join(DATA_DIR, filename)
+ 
+
 
 
 
