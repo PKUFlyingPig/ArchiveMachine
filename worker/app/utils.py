@@ -7,48 +7,41 @@ DATA_DIR = '/usr/src/app/data'
 os.chdir(DATA_DIR)
 
 def add_url(url, log_file="/tmp/log.txt"):
-    """use archivebox API to crawl the html of the given url,
-    return the path this file on the local filesystem
+    """crawl the resource of the given url, return the filename
     @param url: target url
-    @param log_file: where to save the archivebox log output
-    @return path to the saved html, None if crawl failed
+    @return (source_type, filename): the type (pdf, html, video) and the filename of the resource, None if crawl failed
     """
-
-    # dangerous method
     logging.info("adding " + url + " into archivebox ...")
-    # add_cmd = "sudo -u archivebox archivebox add "
-    # unique_url = url + "#" + str(time.time())
-    # log_suffix = " > " + log_file
-    # try:
-    #     os.system(add_cmd + unique_url + log_suffix)
-    #     print("adding " + url + " into archivebox successfully")
-    #     path = catch_data_path(log_file)
-    #     print("the path to the saved html is " + path)
-    #     return path
-
-    # except:
-    #     print("!! Failed to run 'archive add' command !!")
-    #     return None
-
-    filename = "#" + str(time.time())
-    # try:
-    #     cmd = f"wget --output-document '{filename}' '{url}'"
-    #     logging.info(cmd)
-    #     os.system(cmd)
-    # except:
-    #     logging.info("!! Failed to run wget command !!")
-    #     return None
-    # return os.path.join(DATA_DIR, filename)
+    # check arxiv pdf
+    # match = re.match(r'^https://arxiv\.org/pdf/(.*\.pdf)$', url)
+    match = re.match(r'.*/(.*\.pdf)$', url)
+    if match != None:
+        filename = str(time.time()) + ".pdf"
+        cmd = f"wget --connect-timeout=5 -U NoSuchBrowser/1.0 '{url}' -O '{filename}'"
+        source_type = "pdf"
+    else: 
+    # html
+        filename = str(time.time()) + ".html"
+        cmd = f"curl -m 10 -d 'url={url}' singlefile:80 > '{filename}'"
+        source_type = "html"
 
     try:
-        cmd = f"curl -d 'url={url}' singlefile:80 > '{filename}'"
         logging.info(cmd)
-        os.system(cmd)
+        os.system(cmd) # dangerous
     except:
-        logging.info("!! Failed to run wget command !!")
+        logging.info(f"!! Failed to run command : {cmd}!!")
         return None
-    return os.path.join(DATA_DIR, filename)
- 
+    
+    try:
+        size = os.path.getsize(filename)
+        if size == 0:
+            logging.info("!! Failed to crawl the resource !!")
+            return None
+        else:
+            return (source_type, filename)
+    except:
+        logging.info("!! Failed to crawl the resource !!")
+        return None
 
 
 

@@ -8,6 +8,11 @@ message ListSnapshotsRequest {
     string url = 1;
 }
 
+// Content is not a countable noun, but whatever.
+message Contents {
+    repeated Content contents = 1;
+}
+
 message Snapshots {
     repeated Snapshot snapshots = 1;
 }
@@ -47,6 +52,11 @@ message CurrentTasks {
     repeated Task tasks = 1;
 }
 
+message ReportRequest {
+    bytes snapshot_id = 1;
+    string reason = 2;
+}
+
 service Scheduler {
     // Wechat login
     rpc TryLogin (LoginRequest) returns (Empty);
@@ -54,7 +64,7 @@ service Scheduler {
 
     // Public snapshots
     rpc ListSnapshots (ListSnapshotsRequest) returns (Snapshots);
-    rpc GetSnapshot (Snapshot) returns (Content);
+    rpc GetSnapshot (Snapshot) returns (Contents);
 
     // User interface
     rpc GetUserData (Empty) returns (UserData);
@@ -69,12 +79,15 @@ service Scheduler {
     // Tasks
     rpc Capture (CaptureRequest) returns (Empty);
     rpc GetActiveTasks (Empty) returns (stream CurrentTasks);
+    rpc ClearTasks (Empty) returns (Empty);
 
     // Notifications
     rpc MarkAllAsRead (Empty) returns (Empty);
 
-    // Workers and Storage
+    // Management
+    rpc Report (ReportRequest) returns (Empty);
+
+    // Workers
     rpc RegisterWorker (Endpoint) returns (Empty);
-    rpc RegisterStorage (Endpoint) returns (Empty);
 }
 

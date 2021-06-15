@@ -13,17 +13,27 @@ from utils import add_url
 import argparse
 import logging
 import time
+import random
+import hashlib
 
+STORE_SERVER = "https://storageserver.archive.xmcp.ltd/"
 class WorkerServicer(worker_pb2_grpc.WorkerServicer):
     def Crawl(self, crawl_request, context):
         for url in crawl_request.urls:
-            saved_path = add_url(url)
-            #with open(os.path.join(saved_path,"singlefile.html"), 'rb') as content_file:
-            if saved_path is None:
+            state = add_url(url)
+            if state is None:
                 continue
-            with open(saved_path, 'rb') as content_file:
-                data = content_file.read()
-            content = common_pb2.Content(type=common_pb2.Content.Type.html, data=data)
+            source_type, filename = state
+            show_url = (STORE_SERVER + filename).encode()
+            # calculate hash
+            with open(os.path.join('/usr/src/app/data', filename), 'rb') as f:
+                rawdata = f.read()
+                hashval = hashlib.sha256(rawdata).digest()
+            
+            if source_type == "html":
+                content = common_pb2.Content(type=common_pb2.Content.Type.html, data=show_url, hash=hashval)
+            elif source_type == "pdf":
+                content = common_pb2.Content(type=common_pb2.Content.Type.pdf, data=show_url, hash=hashval)
             crawl_response = worker_pb2.CrawlResponse(url=url, content=content)
             yield crawl_response
 
@@ -47,7 +57,7 @@ def serve(port="50051"):
         WorkerServicer(), server)
     server.add_insecure_port('[::]:'+port)
     server.start()
-    print("start server at port " + port + " successfully!")
+    logging.info("start server at port " + port + " successfully!")
     server.wait_for_termination()
 
 if __name__ == '__main__':

@@ -2,13 +2,20 @@ FROM nikolaik/python-nodejs
 WORKDIR /usr/src/app
 EXPOSE 50051
 
+# install grpc
 RUN pip install --no-cache-dir grpcio-tools grpcio
-# RUN pip3 install archivebox
+
 RUN apt-get update
+# install curl for singlefile
 RUN apt install curl -y
+# install wget for pdf
+RUN apt-get install wget -y
+# install youtube-dl for video
+# RUN curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
+# RUN chmod a+rx /usr/local/bin/youtube-dl
+
 # RUN apt-get install sudo -y
 # ####
-# RUN apt-get install wget -y
 # RUN mkdir data
 # RUN /usr/bin/docker -h
 # #### 
