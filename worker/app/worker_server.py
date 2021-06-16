@@ -9,7 +9,7 @@ import capsule.common_pb2 as common_pb2
 import capsule.common_pb2_grpc as common_pb2_grpc
 import capsule.scheduler_pb2 as scheduler_pb2
 import capsule.scheduler_pb2_grpc as scheduler_pb2_grpc
-from utils import add_url
+from utils import add_url, add_video
 import argparse
 import logging
 import time
@@ -22,6 +22,7 @@ class WorkerServicer(worker_pb2_grpc.WorkerServicer):
         for url in crawl_request.urls:
             state = add_url(url)
             if state is None:
+                yield worker_pb2.CrawlResponse(url=url, failed=1)
                 continue
             source_type, filename = state
             show_url = (STORE_SERVER + filename).encode()
@@ -36,6 +37,20 @@ class WorkerServicer(worker_pb2_grpc.WorkerServicer):
                 content = common_pb2.Content(type=common_pb2.Content.Type.pdf, data=show_url, hash=hashval)
             crawl_response = worker_pb2.CrawlResponse(url=url, content=content)
             yield crawl_response
+
+            video = add_video(url)
+            if video is None:
+                continue
+            source_type, filename = "video", video
+            show_url = (STORE_SERVER + filename).encode()
+            # calculate hash
+            with open(os.path.join('/usr/src/app/data', filename), 'rb') as f:
+                rawdata = f.read()
+                hashval = hashlib.sha256(rawdata).digest()
+            content = common_pb2.Content(type=common_pb2.Content.Type.video, data=show_url, hash=hashval)
+            crawl_video_response = worker_pb2.CrawlResponse(url=url, content=content)
+            yield crawl_video_response
+
 
 def register(sched_addr, sched_port, addr, port):
     with grpc.insecure_channel(sched_addr + ':' + sched_port) as channel:

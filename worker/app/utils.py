@@ -22,7 +22,7 @@ def add_url(url, log_file="/tmp/log.txt"):
     else: 
     # html
         filename = str(time.time()) + ".html"
-        cmd = f"curl -m 10 -d 'url={url}' singlefile:80 > '{filename}'"
+        cmd = f"curl -m 30 -d 'url={url}' singlefile:80 > '{filename}'"
         source_type = "html"
 
     try:
@@ -43,6 +43,21 @@ def add_url(url, log_file="/tmp/log.txt"):
         logging.info("!! Failed to crawl the resource !!")
         return None
 
+def add_video(url):
+    filename = f"{time.time()}.mp4"
+    cmd = f"youtube-dl --socket-timeout 30 --exec 'mv {{}} {filename}' --recode-video mp4 {url}"
+    try:
+        logging.info(cmd)
+        os.system(cmd)
+        if os.path.exists(filename):
+            return filename
+        else:
+            logging.info(filename)
+            return None
+    except Exception as e:
+        logging.info(e)
+        logging.info(f"!! not a video !!")
+        return None
 
 
 

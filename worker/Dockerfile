@@ -10,6 +10,7 @@ RUN apt-get update
 RUN apt install curl -y
 # install wget for pdf
 RUN apt-get install wget -y
+RUN apt-get install ffmpeg -y
 # install youtube-dl for video
 # RUN curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
 # RUN chmod a+rx /usr/local/bin/youtube-dl
@@ -47,7 +48,6 @@ RUN apt-get install wget -y
 # ENV HTTP_PROXY=
 # ENV https_proxy=
 # ENV HTTPS_PROXY=
-
 COPY app ./
 RUN make
 CMD ["python3", "worker_server.py"]

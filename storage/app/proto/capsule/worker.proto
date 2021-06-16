@@ -11,6 +11,7 @@ message CrawlRequest {
 message CrawlResponse {
     string url = 1;
     Content content = 2;
+    bool failed = 3;
 }
 
 service Worker {
